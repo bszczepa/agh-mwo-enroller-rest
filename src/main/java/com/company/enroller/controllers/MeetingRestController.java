@@ -1,7 +1,9 @@
 package com.company.enroller.controllers;
 
 import com.company.enroller.model.Meeting;
+import com.company.enroller.model.Participant;
 import com.company.enroller.persistence.MeetingService;
+import com.company.enroller.persistence.ParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,9 @@ public class MeetingRestController {
 
     @Autowired
     MeetingService meetingService;
+
+    @Autowired
+    ParticipantService participantService;
 
     @GetMapping(value = "")
     public ResponseEntity<?> getMeetings() {
@@ -46,4 +51,40 @@ public class MeetingRestController {
         return new ResponseEntity<Meeting>(meeting, HttpStatus.CREATED);
     }
 
+    @PostMapping(value = "/{id}/participants")
+    public ResponseEntity<?> registerParticipantToMeeting(@PathVariable("id") long id,
+                                                          @RequestBody Participant participant) {
+
+        Meeting foundMeeting = meetingService.findById(id);
+        if (foundMeeting == null) {
+            return new ResponseEntity<String>(
+                    "Meeting with ID: " + id + " not found.",
+                    HttpStatus.NOT_FOUND);
+        }
+
+        Participant foundParticipant = participantService.findByLogin(participant.getLogin());
+        if (foundParticipant == null) {
+            return new ResponseEntity<String>(
+                    "Participant " + participant.getLogin() + " not found.",
+                    HttpStatus.NOT_FOUND);
+        }
+
+        meetingService.addParticipantToMeeting(foundMeeting, foundParticipant);
+        return new ResponseEntity<Meeting>(foundMeeting, HttpStatus.CREATED);
+
+    }
+
+    @GetMapping(value="/{id}/participants")
+    public ResponseEntity<?> getMeetingParticipants(@PathVariable("id") long id) {
+
+        Meeting foundMeeting = meetingService.findById(id);
+        if (foundMeeting == null) {
+            return new ResponseEntity<String>(
+                    "Meeting with ID: " + id + " not found.",
+                    HttpStatus.NOT_FOUND);
+        }
+
+        Collection<Participant> participants = meetingService.getParticipants(foundMeeting);
+        return new ResponseEntity<Collection<Participant>>(participants, HttpStatus.OK);
+    }
 }
