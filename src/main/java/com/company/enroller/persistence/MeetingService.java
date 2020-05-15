@@ -35,8 +35,7 @@ public class MeetingService {
 		return meeting;
 	}
 
-	public Meeting addParticipantToMeeting(Meeting meeting, Participant participant) {
-		meeting.addParticipant(participant);
+	public Meeting addParticipantToMeeting(Meeting meeting) {
 		Transaction transaction = this.session.beginTransaction();
 		session.save(meeting);
 		transaction.commit();
@@ -45,5 +44,18 @@ public class MeetingService {
 
 	public Collection<Participant> getParticipants(Meeting meeting) {
 		return meeting.getParticipants();
+	}
+
+	public void delete(Meeting meeting) {
+		Transaction transaction = this.session.beginTransaction();
+		session.delete(meeting);
+		transaction.commit();
+	}
+
+	public Meeting update(Meeting meeting) {
+		Transaction transaction = this.session.beginTransaction();
+		session.update(meeting);
+		transaction.commit();
+		return meeting;
 	}
 }
