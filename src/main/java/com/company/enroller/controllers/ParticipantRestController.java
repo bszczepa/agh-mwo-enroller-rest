@@ -70,6 +70,4 @@ public class ParticipantRestController {
 		participantService.update(foundParticipant);
 		return new ResponseEntity<Participant>(updatedParticipant, HttpStatus.OK);
 	}
-
-
 }
